@@ -1,0 +1,7 @@
+- name: molecule | Prepare
+  hosts: all
+  become: yes
+  gather_facts: no
+  tasks:
+    - include_role:
+      name: common

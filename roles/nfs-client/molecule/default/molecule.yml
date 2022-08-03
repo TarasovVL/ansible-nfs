@@ -1,0 +1,16 @@
+lint: |
+  set -e
+  ansible-lint
+driver:
+  name: docker
+platforms:
+  - name: rhel
+    image: centos
+    command: /sbin/init
+    volumes:
+      - /sys/fs/cgroup:sys/fs/cgroup:ro
+    privileged: true
+provisioner:
+  name: ansible
+verifier:
+  name: ansible

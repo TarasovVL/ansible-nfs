@@ -1,0 +1,89 @@
+---
+- name: provision | Create private public key pair locally
+  hosts: localhost
+  pre_tasks:
+    - name: Verify that Ansible on control node meets the version requirements
+      assert:
+        that: "ansible_version.full is version_compare('2.8', '>=')"
+        fail_msg: "You must update Ansible to at least 2.8 to use these playbooks"
+        success_msg: "Ansible version is {{ ansible_version.full }}, continuing"
+  tasks:
+  - include_role:
+      name: host-provision
+      tasks_from: ssh-keygen.yml
+  tags: host-provision
+
+- name: Create user and transfer public key to set up ssh equivalence
+  hosts: all
+  gather_facts: no
+  #vars_prompt:
+  #  - name: ansible_password
+  #    prompt: Enter admin password
+  vars:
+    ansible_ssh_extra_args: '-o IdentityAgent=no'
+    ansible_password: "{{ firsttime_connect_pass }}" # or use one of the variants below
+    #ansible_password: "{{ vault_ansible_password }}"
+    #ansible_password: "{{ lookup('env', 'ADMIN_PASSWORD') }}"
+    # ansible_password: "" # to get password later, for example from external IAM
+
+  tasks:
+  - include_role:
+      name: host-provision
+      tasks_from: user-setup.yml
+  remote_user: "{{ firsttime_connect_user }}"
+  tags: host-provision
+
+- name: Perform initial config tasks (SSH equivalence validation, LVM setup, etc)
+  hosts: all
+  vars:
+    ansible_ssh_private_key_file: "{{ control_node_key_file }}"
+    ansible_ssh_extra_args: '-o IdentityAgent=no'
+  become: yes
+  tasks:
+  - include_role:
+      name: host-provision
+      tasks_from: config-tasks.yml
+  remote_user: "{{ instance_ssh_user }}"
+  tags: host-provision
+###
+
+- name: Install NFS server/client
+  hosts: nfs_servers, nfs_clients
+  remote_user: "{{ instance_ssh_user }}"
+  ansible_ssh_private_key_file: "{{ control_node_key_file }}"
+  become: yes
+  tasks:
+    - include_role:
+        name: common
+
+    - include_role:
+        name: nfs-server
+      when:
+      - flag_nfs_server|bool
+      tags: nfs, nfs_server
+
+    - name: Configure nfs client
+      block:
+
+      - name: Check if NFS server is accessible from client
+        ansible.builtin.shell: showmount -e {{ item }} | grep {{ hostvars[item].['nfs_server_dir'] }}
+        with_inventory_hostnames:
+          - all:nfs_servers
+
+      - include_role:
+          name: nfs-client
+        vars:
+          nfs_server: "{{ item }}"
+        with_inventory_hostnames:
+          - all:nfs_servers
+
+      rescue:
+
+      - name: Failed message
+        ansible.builtin.debug:
+          msg: "Failed to configure client. Seems like NFS server is inaccessible."
+
+      when:
+        - flag_nfs_client|bool
+      tags: nfs, nfs_client
+   

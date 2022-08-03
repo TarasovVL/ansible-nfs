@@ -1,0 +1,12 @@
+- name: Read multiple definition template files from the Ansible controller file system
+  kubernetes.core.k8s:
+    kubeconfig: "/home/{{ k8s_user }}/.kube/config"
+    namespace: "{{ k8s_nfs_provisioner_namespace }}"
+    state: present
+    template:
+      - path: 'nfs-rbac.yml.j2'
+      - path: 'nfs-provisioner.yml.j2'
+      - path: 'nfs-sc.yml.j2'
+      - path: 'nfs-pvc.yml.j2'
+      - path: 'nfs-mysql.yml.j2'
+    tags: k8s

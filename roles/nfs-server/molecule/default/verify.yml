@@ -1,0 +1,7 @@
+- name: molecule | Varify
+  hosts: all
+  become: yes
+  gather_facts: no
+  tasks:
+  - name: molecule | Check if nfs is exported
+    ansible.builtin.shell: "set -o pipefail; showmount -e {{ inventory_hostname }}"

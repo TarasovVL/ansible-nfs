@@ -1,0 +1,27 @@
+- name: nfs-client | Connect servers to client
+  block:
+
+  - name: nfs-client | Check if NFS server is accessible from client
+    ansible.builtin.shell: "set -o pipefail; showmount -e {{ nfs_server }} | grep {{ hostvars[{{ nfs_server }}].['nfs_server_dir'] }}"
+    register: showmount_output
+    changed_when: "{{ hostvars[{{ nfs_server }}].['nfs_server_dir'] }} in showmount_output.stdout"
+
+  - name: nfs-client | Create directory to mount nfs
+    ansible.builtin.file:
+      path: "{{ nfs_client_mount_dir_prefix }}_{{ nfs_server }}"
+      state: directory
+
+  - name: nfs-client | Mount NFS share
+    ansible.posix.mount:
+      src: "{{ item }}:{{ nfs_server_dir }}"
+      path: "{{ nfs_client_mount_dir_prefix }}_{{ nfs_server }}"
+      opts: rw,sync,hard
+      boot: yes
+      state: mounted
+      fstype: nfs
+
+  rescue:
+
+  - name: nfs-client | Mounting failed
+    ansible.builtin.debug:
+      msg: "Failed to mount {{ hostvars[{{ nfs_server }}].['nfs_server_dir'] }} on {{ nfs_server }} to {{ inventory_hostname }}"

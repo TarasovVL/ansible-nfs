@@ -1,0 +1,20 @@
+# galaxy_info:
+#   author: Valdimir Tarasov
+#   description: NFS server
+#   license: Apache
+#   min_ansible_version: 2.9
+#   platforms:
+#     - name: centos
+#       versions:
+#       - 8
+#       - 7
+#     - name: rhel
+#       versions:
+#       - 8
+#       - 7
+#     - name: debian
+#       versions:
+#       - 10
+#       - 11
+#   galaxy_tags: []
+# dependencies: []

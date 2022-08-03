@@ -1,0 +1,36 @@
+# {{ ansible_managed }}
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: nfs-client-provisioner
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nfs-client-provisioner
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: nfs-client-provisioner
+    spec:
+      serviceAccountName: {{ k8s_nfs_provisioner_sa }}
+      containers:
+        - name: nfs-client-provisioner
+          image: {{ k8s_nfs_provisioner_image }}
+          volumeMounts:
+            - name: nfs-client-root
+              mountPath: /persistentvolumes
+          env:
+            - name: PROVISIONER_NAME
+              value: {{ k8s_nfs_provisioner_name }}
+            - name: NFS_SERVER
+              value: {{ nfs_server_name }}
+            - name: NFS_PATH
+              value: {{ nfs_share_path }}
+      volumes:
+        - name: nfs-client-root
+          nfs:
+            server: {{ nfs_server_name }}
+            path: {{ nfs_share_path }}

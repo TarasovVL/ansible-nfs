@@ -1,0 +1,12 @@
+---
+flag_k8s_create_sc: false
+k8s_user: "root"
+k8s_nfs_provisioner_namespace: "default"
+k8s_nfs_provisioner_sa: "nfs-client-provisioner"
+k8s_nfs_provisioner_role: "leader-locking-nfs-client-provisioner"
+k8s_nfs_provisioner_cluster_role: "nfs-client-provisioner-runner"
+
+k8s_nfs_provisioner_image: "gcr.io/k8s-staging-sig-storage/nfs-subdir-external-provisioner:v4.0.0"
+k8s_nfs_provisioner_name: "nfs-storage"
+k8s_nfs_sc_name: "managed-nfs-storage"
+k8s_nfs_pvc_name: "nfs-claim"

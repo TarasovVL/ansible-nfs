@@ -1,0 +1,8 @@
+---
+###
+instance_ssh_user: "{{ lookup('env','INSTANCE_SSH_USER')|lower|default('ansible',true) }}"
+instance_ssh_pass: "{{ lookup('env','INSTANCE_SSH_PASS')|lower|default('P@ssw0rd',true) }}" # this should be hidden in the vault or in external IAM
+firsttime_connect_user: "{{ lookup('env','INSTANCE_SSH_ADMIN_USER')|lower|default('root',true) }}"
+firsttime_connect_pass: "{{ lookup('env','INSTANCE_SSH_ADMIN_PASS')|lower|default('P@ssw0rd',true) }}" # this should be hidden in the vault or in external IAM
+control_node_key_file: "~/.ssh/id_rsa_{{ instance_ssh_user }}"
+###

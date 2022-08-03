@@ -1,0 +1,13 @@
+# {{ ansible_managed }}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ k8s_nfs_pvc_name }}
+  annotations:
+    volume.beta.kubernetes.io/storage-class: "{{ k8s_nfs_sc_name }}"
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Mi

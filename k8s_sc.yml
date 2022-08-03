@@ -1,0 +1,6 @@
+---
+- name: Configure PV on NFS in k8s cluster and start MySQL container
+  hosts: k8s_controller
+  tasks:
+  - include_role:
+      name: k8s

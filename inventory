@@ -1,0 +1,17 @@
+all:
+  children:
+    nfs_servers:
+      hosts:
+        nfs_server01:
+          flag_nfs_server: false
+          nfs_server_dir: "/var/nfs"
+    nfs_clients:
+      hosts:
+        nfs_client01:
+          flag_nfs_client: false
+          nfs_client_mount_dir: "/mnt/nfs"
+    k8s_controller:
+      hosts:
+        k8s-c01:
+          flag_k8s_create_sc: false
+    
